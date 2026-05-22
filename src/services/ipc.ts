@@ -1,0 +1,18 @@
+// Electron IPC 通信封装
+
+// 配置
+export const config = {
+  get: (key: string) => window.electronAPI.config.get(key),
+  set: (key: string, value: unknown) => window.electronAPI.config.set(key, value),
+  clear: () => window.electronAPI.config.clear()
+}
+
+// 对话框
+export const dialog = {
+  openFile: (options?: Electron.OpenDialogOptions) => 
+    window.electronAPI.dialog.openFile(options),
+  saveFile: (options?: Electron.SaveDialogOptions) => 
+    window.electronAPI.dialog.saveFile(options)
+}
+
+

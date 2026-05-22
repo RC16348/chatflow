@@ -1,0 +1,181 @@
+.app-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+  animation: appFadeIn 0.35s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+// 繁花如梦：底色层（::before）+ 光晕层（::after）分离，避免 blur 吃掉边缘
+[data-theme="blossom-dream"] .app-container {
+  background: transparent;
+}
+
+// ::before 纯底色，不模糊
+[data-theme="blossom-dream"] .app-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -2;
+  background: var(--bg-primary);
+}
+
+// ::after 光晕层，模糊叠加在底色上
+[data-theme="blossom-dream"] .app-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 55% 45% at 15% 20%, var(--blossom-pink) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 75%, var(--blossom-peach) 0%, transparent 65%),
+    radial-gradient(ellipse 45% 50% at 80% 10%, var(--blossom-blue) 0%, transparent 60%);
+  filter: blur(80px);
+  opacity: 0.75;
+}
+
+// 深色模式光晕更克制
+[data-theme="blossom-dream"][data-mode="dark"] .app-container::after {
+  background:
+    radial-gradient(ellipse 55% 45% at 15% 20%, var(--blossom-pink) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 75%, var(--blossom-purple) 0%, transparent 65%),
+    radial-gradient(ellipse 45% 50% at 80% 10%, var(--blossom-blue) 0%, transparent 60%);
+  filter: blur(100px);
+  opacity: 0.2;
+}
+
+.window-drag-region {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 150px; // 预留系统最小化/最大化/关闭按钮区域
+  height: 40px;
+  -webkit-app-region: drag;
+  pointer-events: auto;
+  z-index: 2000;
+}
+
+.main-layout {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.content {
+  flex: 1;
+  overflow: auto;
+  padding: 24px;
+  position: relative;
+}
+
+.export-keepalive-page {
+  height: 100%;
+
+  &.hidden {
+    display: none;
+  }
+}
+
+.export-route-anchor {
+  display: none;
+}
+
+@keyframes appFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// 更新提示条
+.update-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background: var(--primary);
+  color: white;
+  font-size: 14px;
+
+  .update-text {
+    flex: 1;
+    
+    strong {
+      font-weight: 600;
+    }
+  }
+
+  .update-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  .dismiss-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: white;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  .update-progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 150px;
+
+    .progress-bar {
+      flex: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+      overflow: hidden;
+
+      .progress-fill {
+        height: 100%;
+        background: white;
+        border-radius: 3px;
+        transition: width 0.2s ease;
+      }
+    }
+
+    span {
+      font-size: 12px;
+      min-width: 35px;
+    }
+  }
+}
+
+

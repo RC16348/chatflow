@@ -1,0 +1,259 @@
+{
+  "name": "chatflow",
+  "version": "2.0.0",
+  "description": "ChatFlow",
+  "main": "dist-electron/main.js",
+  "author": {
+    "name": "luoka",
+    "email": "2803278835@qq.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RC16348/chatflow.git"
+  },
+  "homepage": "https://github.com/RC16348/chatflow",
+  "bugs": {
+    "url": "https://github.com/RC16348/chatflow/issues"
+  },
+  "license": "CC-BY-NC-SA-4.0",
+  "//": "二改不应改变此处的作者与应用信息",
+  "scripts": {
+    "postinstall": "electron-builder install-app-deps",
+    "rebuild": "electron-rebuild",
+    "dev": "vite",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc && vite build && electron-builder",
+    "preview": "vite preview",
+    "electron:dev": "vite --mode electron",
+    "electron:build": "npm run build"
+  },
+  "dependencies": {
+    "@fast-csv/format": "^5.0.5",
+    "@fast-csv/parse": "^5.0.5",
+    "@types/node": "^25.6.0",
+    "@vscode/sudo-prompt": "^9.3.2",
+    "dayjs": "^1.11.20",
+    "echarts": "^6.0.0",
+    "echarts-for-react": "^3.0.2",
+    "electron-store": "^11.0.2",
+    "electron-updater": "^6.3.9",
+    "exceljs": "^4.4.0",
+    "fast-csv": "^5.0.5",
+    "ffmpeg-static": "^5.3.0",
+    "fzstd": "^0.1.1",
+    "html2canvas": "^1.4.1",
+    "jieba-wasm": "^2.2.0",
+    "jszip": "^3.10.1",
+    "koffi": "^2.9.0",
+    "lucide-react": "^1.7.0",
+    "qrcode": "^1.5.4",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.14.0",
+    "react-virtuoso": "^4.18.1",
+    "remark-gfm": "^4.0.1",
+    "sherpa-onnx-node": "^1.12.35",
+    "sherpa-onnx-win-x64": "^1.13.0",
+    "silk-wasm": "^3.7.1",
+    "tmp": "^0.2.5",
+    "uuid": "^14.0.0",
+    "wechat-emojis": "^1.0.2",
+    "xml2js": "^0.6.2",
+    "xmlbuilder2": "^4.0.3",
+    "zustand": "^5.0.2"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "latest",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "latest",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^39.6.0",
+    "electron-builder": "^26.8.1",
+    "sass": "^1.99.0",
+    "sharp": "^0.34.5",
+    "typescript": "^6.0.2",
+    "vite": "^7.3.2",
+    "vite-plugin-electron": "^0.29.1",
+    "vite-plugin-electron-renderer": "^0.14.6"
+  },
+  "pnpm": {
+    "overrides": {
+      "tar": ">=6.2.1",
+      "minimatch": ">=3.1.2",
+      "rollup": ">=4.0.0",
+      "immutable": ">=4.0.0",
+      "lodash": ">=4.17.21",
+      "brace-expansion": ">=1.1.11",
+      "picomatch": ">=2.3.1",
+      "ajv": ">=8.18.0",
+      "ajv-keywords@3>ajv": "^6.12.6",
+      "@develar/schema-utils>ajv": "^6.12.6",
+      "chainsaw>traverse": "^0.6.8"
+    }
+  },
+  "build": {
+    "appId": "com.ChatFlow.app",
+    "npmRebuild": false,
+    "publish": {
+      "provider": "github",
+      "owner": "luoka",
+      "repo": "ChatFlow",
+      "releaseType": "release"
+    },
+    "productName": "ChatFlow",
+    "artifactName": "${productName}-${version}-Setup.${ext}",
+    "directories": {
+      "output": "dist-release-v2-0-2"
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.utilities",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "entitlements": "electron/entitlements.mac.plist",
+      "entitlementsInherit": "electron/entitlements.mac.plist",
+      "icon": "resources/icons/macos/icon.icns"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "public/icon.ico",
+      "requestedExecutionLevel": "asInvoker",
+      "extraFiles": [
+        {
+          "from": "resources/runtime/win32/msvcp140.dll",
+          "to": "."
+        },
+        {
+          "from": "resources/runtime/win32/msvcp140_1.dll",
+          "to": "."
+        },
+        {
+          "from": "resources/runtime/win32/vcruntime140.dll",
+          "to": "."
+        },
+        {
+          "from": "resources/runtime/win32/vcruntime140_1.dll",
+          "to": "."
+        }
+      ]
+    },
+    "linux": {
+      "icon": "public/icon.png",
+      "target": [
+        "appimage",
+        "tar.gz"
+      ],
+      "category": "Utility",
+      "executableName": "ChatFlow",
+      "synopsis": "ChatFlow for Linux",
+      "extraFiles": [
+        {
+          "from": "resources/installer/linux/install.sh",
+          "to": "install.sh"
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "differentialPackage": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "unicode": true,
+      "installerLanguages": [
+        "zh_CN",
+        "en_US"
+      ],
+      "language": "2052",
+      "displayLanguageSelector": false,
+      "include": "installer.nsh",
+      "installerIcon": "public/icon.ico",
+      "uninstallerIcon": "public/icon.ico",
+      "installerHeaderIcon": "public/icon.ico",
+      "perMachine": false,
+      "allowElevation": true,
+      "installerSidebar": null,
+      "uninstallerSidebar": null
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-Portable.${ext}"
+    },
+    "extraResources": [
+      {
+        "from": "resources/",
+        "to": "resources/",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "public/icon.ico",
+        "to": "icon.ico"
+      },
+      {
+        "from": "public/icon.png",
+        "to": "icon.png"
+      },
+      {
+        "from": "electron/assets/wasm/",
+        "to": "assets/wasm/",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "node_modules/sherpa-onnx-win-x64/",
+        "to": "app.asar.unpacked/node_modules/sherpa-onnx-win-x64/",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "node_modules/wechat-emojis/",
+        "to": "app.asar.unpacked/node_modules/wechat-emojis/",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "node_modules/**/*",
+      "!node_modules/**/*.{txt,md,js.map,ts,html}",
+      "!node_modules/**/test/**/*",
+      "!node_modules/**/docs/**/*",
+      "!node_modules/**/examples/**/*"
+    ],
+    "asarUnpack": [
+      "node_modules/silk-wasm/**/*",
+      "node_modules/sherpa-onnx-node/**/*",
+      "node_modules/sherpa-onnx-win-x64/**/*",
+      "node_modules/sherpa-onnx-*/*",
+      "node_modules/sherpa-onnx-*/**/*",
+      "node_modules/ffmpeg-static/**/*",
+      "node_modules/koffi/**/*",
+      "resources/**/*"
+    ],
+    "asar": true,
+    "icon": "resources/icons/macos/icon.icns"
+  },
+  "overrides": {
+    "picomatch": "^4.0.4",
+    "tar": "^7.5.13",
+    "immutable": "^5.1.5"
+  }
+}

@@ -1,0 +1,464 @@
+.auth-verify-page {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  -webkit-app-region: drag;
+  overflow: auto;
+  padding: 20px;
+  box-sizing: border-box;
+
+  &.failed {
+    -webkit-app-region: no-drag;
+  }
+
+  &.success {
+    -webkit-app-region: no-drag;
+  }
+
+  // 自定义滚动条样式
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .auth-verify-container {
+    width: 400px;
+    background: var(--bg-primary);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    padding: 48px 40px;
+    text-align: center;
+    animation: scaleIn 0.3s ease-out;
+
+    .loading-spinner {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 24px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .spinner-icon {
+        color: white;
+        animation: spin 1s linear infinite;
+      }
+    }
+
+    .verify-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0 0 12px 0;
+    }
+
+    .verify-message {
+      font-size: 15px;
+      color: var(--text-secondary);
+      margin: 0 0 24px 0;
+      line-height: 1.5;
+    }
+
+    .verify-progress {
+      .progress-bar {
+        height: 4px;
+        background: var(--bg-tertiary);
+        border-radius: 2px;
+        overflow: hidden;
+
+        .progress-indeterminate {
+          height: 100%;
+          width: 40%;
+          background: linear-gradient(90deg, var(--primary) 0%, var(--primary-hover) 100%);
+          border-radius: 2px;
+          animation: indeterminate 1.5s ease-in-out infinite;
+        }
+      }
+    }
+  }
+
+  .auth-failed-container {
+    width: 520px;
+    max-width: 90vw;
+    max-height: 85vh;
+    background: var(--bg-primary);
+    border-radius: 32px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    animation: slideUp 0.3s ease-out;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    // 内容区域滚动
+    .dialog-content {
+      overflow-y: auto;
+      max-height: calc(85vh - 200px);
+      
+      // 自定义滚动条
+      &::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.15);
+        border-radius: 3px;
+      }
+
+      &::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.25);
+      }
+    }
+
+    .dialog-header {
+      padding: 40px 40px 20px;
+      text-align: center;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+
+      .error-icon {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 20px;
+        background: rgba(239, 68, 68, 0.15);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ef4444;
+      }
+
+      .dialog-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin: 0;
+      }
+    }
+
+    .dialog-content {
+      padding: 24px 40px;
+
+      .error-message {
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        padding: 16px 20px;
+        margin-bottom: 24px;
+        border-left: 4px solid #ef4444;
+
+        p {
+          font-size: 15px;
+          color: var(--text-primary);
+          line-height: 1.6;
+          margin: 0;
+        }
+      }
+
+      .contact-info {
+        h3 {
+          font-size: 16px;
+          font-weight: 600;
+          color: var(--text-primary);
+          margin: 0 0 16px 0;
+        }
+
+        .contact-details {
+          background: var(--bg-secondary);
+          border-radius: 12px;
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .contact-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 15px;
+
+          .label {
+            color: var(--text-secondary);
+            flex-shrink: 0;
+          }
+
+          .value {
+            color: var(--text-primary);
+            font-weight: 500;
+
+            &.wechat-id {
+              font-family: 'SF Mono', Monaco, monospace;
+              background: var(--bg-tertiary);
+              padding: 4px 10px;
+              border-radius: 6px;
+              font-size: 14px;
+            }
+
+            &.remark {
+              color: var(--primary);
+              font-weight: 600;
+            }
+          }
+
+          .copy-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            margin-left: 8px;
+            background: var(--primary);
+            color: var(--on-primary);
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            -webkit-app-region: no-drag;
+
+            &:hover {
+              background: var(--primary-hover);
+              transform: translateY(-1px);
+            }
+
+            &:active {
+              transform: translateY(0);
+            }
+          }
+        }
+      }
+    }
+
+    .uuid-info {
+      margin-top: 20px;
+
+      h3 {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin: 0 0 8px 0;
+      }
+
+      .uuid-hint {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin: 0 0 12px 0;
+      }
+
+      .uuid-details {
+        background: var(--bg-secondary);
+        border-radius: 12px;
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .uuid-value {
+        font-family: 'SF Mono', Monaco, monospace;
+        font-size: 13px;
+        color: var(--text-primary);
+        background: var(--bg-tertiary);
+        padding: 10px 14px;
+        border-radius: 8px;
+        word-break: break-all;
+        text-align: center;
+        width: 100%;
+        border: 1px dashed var(--border-color);
+      }
+
+      .uuid-copy-btn {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 20px;
+        background: var(--primary);
+        color: var(--on-primary);
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        -webkit-app-region: no-drag;
+
+        &:hover:not(:disabled) {
+          background: var(--primary-hover);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
+        }
+
+        &:active:not(:disabled) {
+          transform: translateY(0);
+        }
+
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
+    }
+
+    .dialog-actions {
+      padding: 0 40px 40px;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+
+      button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: none;
+        -webkit-app-region: no-drag;
+
+        span {
+          font-size: 15px;
+        }
+
+        &.btn-quit {
+          background: var(--bg-tertiary);
+          color: var(--text-secondary);
+
+          &:hover {
+            background: var(--bg-hover);
+          }
+        }
+
+        &.btn-retry {
+          background: var(--primary);
+          color: var(--on-primary);
+
+          &:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
+          }
+
+          &:active {
+            transform: translateY(0);
+          }
+        }
+      }
+    }
+  }
+
+  .auth-success-container {
+    width: 400px;
+    background: var(--bg-primary);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    padding: 48px 40px;
+    text-align: center;
+    animation: scaleIn 0.3s ease-out;
+
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 24px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 40px;
+      font-weight: 700;
+    }
+
+    .success-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0 0 12px 0;
+    }
+
+    .success-message {
+      font-size: 15px;
+      color: var(--text-secondary);
+      margin: 0;
+    }
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(150%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+// 适配深色主题
+@media (prefers-color-scheme: dark) {
+  .auth-verify-page {
+    .auth-failed-container {
+      .dialog-header {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.05) 100%);
+      }
+    }
+  }
+}
