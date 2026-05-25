@@ -861,36 +861,18 @@ class InsightService {
     const sessionTriggerTimes = this.recordTrigger(sessionId)
     const totalTodayTriggers = this.getTodayTotalTriggerCount()
 
-    let contextSection = ''
-    if (allowContext) {
-      try {
-        const msgsResult = await chatService.getLatestMessages(sessionId, contextCount)
-        if (msgsResult.success && msgsResult.messages && msgsResult.messages.length > 0) {
-          const messages: Message[] = msgsResult.messages
-          const msgLines = messages.map((m) => {
-            const sender = m.isSend === 1 ? '我' : (displayName || sessionId)
-            const content = m.rawContent || m.parsedContent || '[非文字消息]'
-            const time = new Date(Number(m.createTime) * 1000).toLocaleString('zh-CN')
-            return `[${time}] ${sender}：${content}`
-          })
-          contextSection = `\n\n近期对话记录（最近 ${msgLines.length} 条）：\n${msgLines.join('\n')}`
-          insightLog('INFO', `已加载 ${msgLines.length} 条上下文消息`)
-        }
-      } catch (e) {
-        insightLog('WARN', `拉取上下文失败: ${(e as Error).message}`)
-      }
-    }
-
-    // 获取双方性别、地区和天气信息
+    // ── 先获取双方性别信息（用于后续上下文构建和辅助信息）────────────────────────
+    let myGender = 0
+    let contactGender = 0
     let auxiliaryInfoSection = ''
+    let region = ''
+    
     try {
-      // 获取对方性别和地区
+      // 获取对方性别
       const contactGenderResult = await chatService.getContactGender(sessionId)
-      const contactCache = new ContactCacheService()
-      const contactInfo = contactCache.get(sessionId)
+      contactGender = contactGenderResult.gender || 0
       
-      // 获取当前用户性别（从数据库查询自己的信息）
-      let myGender = 0
+      // 获取当前用户性别
       try {
         const myInfoResult = await chatService.getMyInfo()
         if (myInfoResult.success && myInfoResult.username) {
@@ -905,8 +887,10 @@ class InsightService {
       const myGenderText = genderMap[myGender] || '未知'
       const contactGenderText = contactGenderResult.genderText || '未知'
       
-      // 地区信息
-      const region = contactInfo?.region || ''
+      // 获取地区信息
+      const contactCache = new ContactCacheService()
+      const contactInfo = contactCache.get(sessionId)
+      region = contactInfo?.region || ''
       
       // 天气信息（如果有地区）
       let weather = ''
@@ -953,21 +937,62 @@ class InsightService {
       insightLog('WARN', `获取辅助信息失败: ${(e as Error).message}`)
     }
 
+    // ── 构建聊天上下文（包含性别标识）───────────────────────────────────────────
+    let contextSection = ''
+    if (allowContext) {
+      try {
+        const msgsResult = await chatService.getLatestMessages(sessionId, contextCount)
+        if (msgsResult.success && msgsResult.messages && msgsResult.messages.length > 0) {
+          const messages: Message[] = msgsResult.messages
+          const genderMap: Record<number, string> = { 0: '', 1: '[男]', 2: '[女]' }
+          const myGenderTag = genderMap[myGender] || ''
+          const contactGenderTag = genderMap[contactGender] || ''
+          
+          const msgLines = messages.map((m) => {
+            const isMe = m.isSend === 1
+            const senderGenderTag = isMe ? myGenderTag : contactGenderTag
+            const senderName = isMe ? '我' : (displayName || sessionId)
+            const sender = `${senderGenderTag}${senderName}`
+            const content = m.rawContent || m.parsedContent || '[非文字消息]'
+            const time = new Date(Number(m.createTime) * 1000).toLocaleString('zh-CN')
+            return `[${time}] ${sender}：${content}`
+          })
+          contextSection = `\n\n近期对话记录（最近 ${msgLines.length} 条）：\n${msgLines.join('\n')}`
+          insightLog('INFO', `已加载 ${msgLines.length} 条上下文消息`)
+        }
+      } catch (e) {
+        insightLog('WARN', `拉取上下文失败: ${(e as Error).message}`)
+      }
+    }
+
     // ── 默认 system prompt（稳定内容，有利于 provider 端 prompt cache 命中）────
-    const DEFAULT_SYSTEM_PROMPT = `你是用户的私人关系观察助手，名叫"见解"，输出高价值观察+自然得体的回复建议，绝不强行尬聊或过度热情。
+    const DEFAULT_SYSTEM_PROMPT = `你是用户的私人关系观察助手，名叫"见解"。
+
+【角色定义】
+- "我" = 当前登录微信的用户（使用本助手的人，即你的服务对象）
+- "对方" = 聊天对象（与"我"对话的另一方）
+- 你必须始终站在"我"的角度，为"我"提供回复建议和关系观察
+
+【分析逻辑】
 先理清时间轴、发言方、回复间隔/时长，再按以下逻辑分析：
-1.分析优先级：先判定对方情绪状态、聊天意愿，再分析话题趋势、关系动态，最终给精准建议。
+1.分析优先级：先判定对方情绪状态、聊天意愿，再分析话题趋势、关系动态，最终给"我"精准建议。
 2.情绪判定铁则：结合语境、回复长度、语气、情绪关键词综合判断，不单一依赖关键词。
-   - 情绪上扬（兴奋/分享/炫耀）：适度回应，自然承接话题，不过度吹捧；可针对具体细节简短提问（如"怎么做到的"），但需判断关系亲疏和对方分享意愿，避免过度追问
-   - 情绪低落（疲惫/自嘲/低落/自我否定）：适度共情，简短回应，不过度关心；严禁说教、强行正能量
-   - 无情绪事务性消息：直白应答，不强行接情绪
-   - 出现疼/困/累/差劲等明确情绪词，优先简短回应情绪，不过度展开
+   - 对方情绪上扬：建议"我"适度回应，自然承接话题，不过度吹捧；可针对具体细节简短提问，但需判断关系亲疏和对方分享意愿，避免过度追问
+   - 对方情绪低落：建议"我"适度共情，简短回应，不过度关心；严禁说教、强行正能量
+   - 无情绪事务性消息：建议"我"直白应答，不强行接情绪
+   - 出现疼/困/累/差劲等明确情绪词，建议"我"优先简短回应情绪，不过度展开
 3.场景适配：精准识别敷衍、冷场、回避、终结话题、低聊天意愿信号，匹配对应方案，绝不强行续聊。
-   - 对方有分享欲：给自然续聊建议，避免过度热情
-   - 对方无聊天意愿：给体面收尾/暂停聊天建议，不硬撑尬聊
-   - 对方表达不满/质疑时：建议先理解对方诉求，而非急于解释或反驳，保持正常沟通姿态，不过度心理分析
-4.回复风格：像正常人一样说话，避免"高情商话术"感，不过度使用感叹号、表情符号或亲密称呼
-5.输出要求：80字以内，简洁一针见血，纯文本无冗余。仅遇单字无意义短句时回复SKIP，其余输出匹配场景的有效见解。`
+   - 对方有分享欲：给"我"自然续聊建议，避免过度热情
+   - 对方无聊天意愿：给"我"体面收尾/暂停聊天建议，不硬撑尬聊
+   - 对方表达不满/质疑时：建议"我"先理解对方诉求，而非急于解释或反驳，保持正常沟通姿态，不过度心理分析
+4.回复风格：像正常人一样说话，避免"高情商话术"感。善用走心表达：用"确实"替代空洞赞美，用"像你这种人"点明特质，用"头一回"突出特殊性。
+5.心法与技巧：
+   - 关系阶段：判断亲疏，避免交浅言深；识别时机，对方有兴致时延续，冷淡时体面收尾
+   - 情绪优先：核心是情绪互动，非内容高端；不一惊一乍、不自卑讨好、不提前结束有兴致的对话
+   - 聊得好时：适时从"回复建议"转向"关系升温"
+   - 互动方法：提取关键词用5W1H延伸；陈述代问降低压力；调动情绪→共情→推进，形成情绪流动
+   - 情绪价值：建议"我"用"太棒了""心疼你"等感受词开头；事实+猜测+认同转感受；用"我也...""我懂..."造共同体验；用"看了...让我..."给情绪反馈；用"那你感觉呢？"追问引情绪
+8.输出要求：80字以内，简洁一针见血，纯文本无冗余。仅遇单字无意义短句时回复SKIP，其余输出匹配场景的有效见解。`
 
     // 优先使用用户自定义 prompt，为空则使用默认值
     const customPrompt = (this.config.get('aiInsightSystemPrompt') as string) || ''
